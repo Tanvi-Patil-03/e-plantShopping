@@ -85,3 +85,119 @@ function ProductList() {
 }
 
 export default ProductList;
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeItem, updateQuantity } from './CartSlice';
+import './CartItem.css';
+
+const CartItem = ({ onContinueShopping }) => {
+
+    const cart = useSelector(state => state.cart.items);
+    const dispatch = useDispatch();
+
+    // Calculate total amount of all products
+    const calculateTotalAmount = () => {
+        return cart.reduce((total, item) => {
+            const price = parseFloat(item.cost.substring(1));
+            return total + price * item.quantity;
+        }, 0).toFixed(2);
+    };
+
+    // Continue shopping
+    const handleContinueShopping = (e) => {
+        onContinueShopping(e);
+    };
+
+    // Checkout
+    const handleCheckoutShopping = (e) => {
+        alert('Functionality to be added for future reference');
+    };
+
+    // Increment quantity
+    const handleIncrement = (item) => {
+        dispatch(updateQuantity({
+            name: item.name,
+            amount: item.quantity + 1
+        }));
+    };
+
+    // Decrement quantity
+    const handleDecrement = (item) => {
+        if (item.quantity > 1) {
+            dispatch(updateQuantity({
+                name: item.name,
+                amount: item.quantity - 1
+            }));
+        } else {
+            dispatch(removeItem(item.name));
+        }
+    };
+
+    // Remove item
+    const handleRemove = (item) => {
+        dispatch(removeItem(item.name));
+    };
+
+    // Calculate subtotal for individual product
+    const calculateTotalCost = (item) => {
+        const price = parseFloat(item.cost.substring(1));
+        return (price * item.quantity).toFixed(2);
+    };
+
+    return (
+        <div className="cart-container">
+
+            <h2 style={{ color: 'black' }}>
+                Total Cart Amount: ${calculateTotalAmount()}
+            </h2>
+
+            <div>
+                {cart.map(item => (
+
+                    <div className="cart-item" key={item.name}>
+
+                        <img
+                            className="cart-item-image"
+                           
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import ProductList from './ProductList';
+import CartItem from './CartItem';
+import './App.css';
+
+function App() {
+  const [showCart, setShowCart] = useState(false);
+  const cartItems = useSelector(state => state.cart.items);
+
+  const totalItems = cartItems.reduce(
+    (total, item) => total + item.quantity, 0
+  );
+
+  const handleContinueShopping = () => {
+    setShowCart(false);
+  };
+
+  return (
+    <div>
+      <nav className="navbar">
+        <h2>Paradise Nursery</h2>
+
+        <button onClick={() => setShowCart(false)}>
+          Plants
+        </button>
+
+        <button onClick={() => setShowCart(true)}>
+          🛒 Cart ({totalItems})
+        </button>
+      </nav>
+
+      {showCart ? (
+        <CartItem onContinueShopping={handleContinueShopping} />
+      ) : (
+        <ProductList />
+      )}
+    </div>
+  );
+}
+
+export default App;
