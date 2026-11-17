@@ -1,54 +1,87 @@
-cat > src/ProductList.jsx <<'EOF'
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { addItem } from './CartSlice';
 import './ProductList.css';
 
-const plants = [
-  {id:1,name:'Snake Plant',category:'Air Purifying Plants',price:299,image:'https://images.unsplash.com/photo-1593691509543-c55fb32e5cee?w=500',description:'Improves indoor air quality.'},
-  {id:2,name:'Spider Plant',category:'Air Purifying Plants',price:249,image:'https://images.unsplash.com/photo-1572688484438-313a6e50c333?w=500',description:'Beautiful and easy to maintain.'},
-  {id:3,name:'Peace Lily',category:'Air Purifying Plants',price:399,image:'https://images.unsplash.com/photo-1593691509543-c55fb32e5cee?w=500',description:'Elegant flowering indoor plant.'},
-  {id:4,name:'Lavender',category:'Aromatic Plants',price:299,image:'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=500',description:'Calming fragrance for your home.'},
-  {id:5,name:'Rosemary',category:'Aromatic Plants',price:249,image:'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=500',description:'Fresh aromatic kitchen herb.'},
-  {id:6,name:'Mint',category:'Aromatic Plants',price:149,image:'https://images.unsplash.com/photo-1628557044797-f21a177c37ec?w=500',description:'Refreshing and fragrant herb.'},
-  {id:7,name:'Aloe Vera',category:'Medicinal Plants',price:199,image:'https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=500',description:'Popular medicinal succulent.'},
-  {id:8,name:'Tulsi',category:'Medicinal Plants',price:179,image:'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=500',description:'Traditional medicinal plant.'}
-];
-
 function ProductList() {
-  const dispatch = useDispatch();
-  const cart = useSelector(state => state.cart.items);
+    const dispatch = useDispatch();
 
-  return (
-    <main className="container">
-      <h1>Explore Our Plants 🌿</h1>
-      {['Air Purifying Plants','Aromatic Plants','Medicinal Plants'].map(category => (
-        <section key={category}>
-          <h2 className="section-title">{category}</h2>
-          <div className="grid">
-            {plants.filter(p => p.category === category).map(plant => (
-              <article className="card" key={plant.id}>
-                <img src={plant.image} alt={plant.name}/>
-                <div className="card-body">
-                  <h3>{plant.name}</h3>
-                  <p>{plant.description}</p>
-                  <h3>₹{plant.price}</h3>
-                  <button
-                    className="primary"
-                    disabled={cart.some(i => i.id === plant.id)}
-                    onClick={() => dispatch(addItem(plant))}
-                  >
-                    {cart.some(i => i.id === plant.id) ? 'Added to Cart' : 'Add to Cart'}
-                  </button>
+    const [addedToCart, setAddedToCart] = useState({});
+
+    const plantsArray = [
+        {
+            category: "Air Purifying Plants",
+            plants: [
+                { id: 1, name: "Snake Plant", image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg", description: "Produces oxygen at night, improving air quality.", cost: "$15" },
+                { id: 2, name: "Spider Plant", image: "https://cdn.pixabay.com/photo/2018/07/11/06/47/chlorophytum-3530413_1280.jpg", description: "Filters formaldehyde and xylene from the air.", cost: "$12" },
+                { id: 3, name: "Peace Lily", image: "https://cdn.pixabay.com/photo/2019/06/12/14/14/peace-lilies-4269365_1280.jpg", description: "Removes mold spores and purifies the air.", cost: "$18" },
+                { id: 4, name: "Boston Fern", image: "https://cdn.pixabay.com/photo/2020/04/30/19/52/boston-fern-5114414_1280.jpg", description: "Adds humidity to the air and removes toxins.", cost: "$20" },
+                { id: 5, name: "Rubber Plant", image: "https://cdn.pixabay.com/photo/2020/02/15/11/49/flower-4850729_1280.jpg", description: "Easy to care for and effective at removing toxins.", cost: "$17" },
+                { id: 6, name: "Aloe Vera", image: "https://cdn.pixabay.com/photo/2018/04/02/07/42/leaf-3283175_1280.jpg", description: "Purifies the air and has healing properties for skin.", cost: "$14" }
+            ]
+        },
+        {
+            category: "Aromatic Fragrant Plants",
+            plants: [
+                { id: 7, name: "Lavender", image: "https://images.unsplash.com/photo-1611909023032-2d6b3134ecba?w=500", description: "Calming scent, used in aromatherapy.", cost: "$20" },
+                { id: 8, name: "Jasmine", image: "https://images.unsplash.com/photo-1592729645009-b96d1e63d14b?w=500", description: "Sweet fragrance, promotes relaxation.", cost: "$18" },
+                { id: 9, name: "Rosemary", image: "https://cdn.pixabay.com/photo/2019/10/11/07/12/rosemary-4541241_1280.jpg", description: "Invigorating scent, often used in cooking.", cost: "$15" },
+                { id: 10, name: "Mint", image: "https://cdn.pixabay.com/photo/2016/01/07/18/16/mint-1126282_1280.jpg", description: "Refreshing aroma, used in teas and cooking.", cost: "$12" },
+                { id: 11, name: "Lemon Balm", image: "https://cdn.pixabay.com/photo/2019/09/16/07/41/balm-4480134_1280.jpg", description: "Citrusy scent, promotes relaxation.", cost: "$14" },
+                { id: 12, name: "Hyacinth", image: "https://cdn.pixabay.com/photo/2019/04/07/20/20/hyacinth-4110726_1280.jpg", description: "Beautiful flowering plant known for its fragrance.", cost: "$22" }
+            ]
+        }
+    ];
+
+    const handleAddToCart = (plant) => {
+        const price = Number(plant.cost.replace('$', ''));
+
+        dispatch(addItem({
+            ...plant,
+            price
+        }));
+
+        setAddedToCart(prevState => ({
+            ...prevState,
+            [plant.name]: true
+        }));
+    };
+
+    return (
+        <div className="product-grid">
+            {plantsArray.map((category, index) => (
+                <div key={index}>
+                    <h2>{category.category}</h2>
+
+                    <div className="product-grid">
+                        {category.plants.map((plant) => (
+                            <div className="product-card" key={plant.id}>
+                                <img
+                                    src={plant.image}
+                                    alt={plant.name}
+                                />
+
+                                <h3>{plant.name}</h3>
+
+                                <p>{plant.description}</p>
+
+                                <h4>{plant.cost}</h4>
+
+                                <button
+                                    onClick={() => handleAddToCart(plant)}
+                                    disabled={addedToCart[plant.name]}
+                                >
+                                    {addedToCart[plant.name]
+                                        ? "Added to Cart"
+                                        : "Add to Cart"}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-              </article>
             ))}
-          </div>
-        </section>
-      ))}
-    </main>
-  );
+        </div>
+    );
 }
 
 export default ProductList;
-EOF
